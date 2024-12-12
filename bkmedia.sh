@@ -32,7 +32,9 @@ backup() {
        done < "$CONFIG_FILE"
     else
         # Back specfic location by line_number
-        local src=$(sed -n "${line_number}p" $CONFIG_FILE)
+        src=$(sed -n "${line_number}p" $CONFIG_FILE)
+        local src
+
         if [[ -n $src ]]; then
             perform_backup "$src"
         else
@@ -43,7 +45,9 @@ backup() {
 # Function to perform the backup using resync
 perform_backup(){
     local src=$1
-    local dest="$BACKUP_DIR/$(echo $src | sed 's/[^a-zA-Z0-9]/_/g')"
+   # new_dir=$(echo $(echo $src | sed 's/[^a-zA-Z0-9]/_/g'))
+    dest="${BACKUP_DIR}/${src//[^a-zA-Z0-9]/_}"
+    local dest
 
     echo "Starting Back up from $src to $dest"
 
@@ -51,9 +55,7 @@ perform_backup(){
     mkdir -p "$dest"
 
     # start backup using rsync
-    rsync -avz --delete "$src" "$dest" >> "$LOG_FILE" 2>&1
-
-    if [[ $? -eq 0 ]]; then
+    if rsync -avz --delete "$src" "$dest" >> "$LOG_FILE" 2>&1; then
         echo "Backup successful for $src | tee -a $LOG_FILE"
     else
         echo "Backup Successful for $src | tee -a $LOG_FILE"
