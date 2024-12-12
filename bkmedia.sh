@@ -45,7 +45,7 @@ backup() {
 # Function to perform the backup using resync
 perform_backup(){
     local src=$1
-   # new_dir=$(echo $(echo $src | sed 's/[^a-zA-Z0-9]/_/g'))
+
     dest="${BACKUP_DIR}/${src//[^a-zA-Z0-9]/_}"
     local dest
 
@@ -53,6 +53,9 @@ perform_backup(){
 
     # check if destination dir exists, make it if not
     mkdir -p "$dest"
+
+    # Save the mapping to metadata file
+    echo "$src $dest" >> "$BACKUP_DIR/backup_metadata.txt"
 
     # start backup using rsync
     if rsync -avz --delete "$src" "$dest" >> "$LOG_FILE" 2>&1; then
@@ -62,6 +65,42 @@ perform_backup(){
     fi
 
 }
+
+restore() {
+    local line_number=$1
+
+    if [[ -z $line_number ]]; then
+        echo "Error: Specify a line number with -L option for restore."
+        exit 1
+    fi
+
+    src=$(sed -n "${line_number}p" "$CONFIG_FILE")
+    local src
+
+    if [[ -n $src ]]; then
+        # Find the corresponding backup directory from metadata file
+        dest=$(grep "^$src " "$BACKUP_DIR/backup_metadata.txt" | awk '{print $2}')
+        local dest
+
+        if [[ -z $dest ]]; then
+            echo "Error: No backup found for $src in metadata."
+            exit 1
+        fi
+
+        echo "Restoring from $dest to $src"
+
+        # Perform restoration
+        if rsync -avz "$dest/" "$src" >> "$LOG_FILE" 2>&1; then
+            echo "Restore successful for $src" | tee -a "$LOG_FILE"
+        else
+            echo "Restore failed for $src" | tee -a "$LOG_FILE"
+        fi
+    else
+        echo "Error: Invalid line number."
+    fi
+}
+
+
 
 #Script Switch
 case $1 in
