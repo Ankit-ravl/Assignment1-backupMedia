@@ -1,3 +1,4 @@
 .vagrant
 backup
-*.pem*.pem
+*.pem
+*.py
