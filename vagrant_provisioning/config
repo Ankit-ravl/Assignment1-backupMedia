@@ -1,0 +1,4 @@
+Host aws-instance
+    HostName ec2-35-173-251-123.compute-1.amazonaws.com
+    User ec2-user
+    IdentityFile ~/.ssh/backup_test.pem

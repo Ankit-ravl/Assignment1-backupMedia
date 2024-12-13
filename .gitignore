@@ -1,2 +1,3 @@
 .vagrant
 backup
+*.pem*.pem
