@@ -1,4 +1,8 @@
 Host aws-instance
-    HostName ec2-54-163-62-132.compute-1.amazonaws.com
+    HostName ec2-44-202-100-249.compute-1.amazonaws.com
     User ec2-user
     IdentityFile ~/.ssh/backup_tst.pem
+Host vm2
+    HostName 192.168.33.11
+    User vagrant
+    IdentityFile ~/.ssh/vm2_key.pem
